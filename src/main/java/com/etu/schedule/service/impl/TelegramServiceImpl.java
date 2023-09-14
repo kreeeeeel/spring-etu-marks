@@ -124,6 +124,20 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
+    public String changeNote(Long userId) {
+        UserEntity userEntity = userRepository.findByTelegramId(userId)
+                .orElse(UserEntity.builder().telegramId(userId).build());
+
+        if (userEntity.getEmail() == null || userEntity.getPassword() == null){
+            return "❌ Вы не были авторизованы! /auth";
+        }
+
+        userEntity.setNote(!userEntity.isNote());
+        userRepository.save(userEntity);
+        return userEntity.isNote() ? "\uD83D\uDE00 Отлично! Теперь бот будет ходить и отмечаться за вас!" : "\uD83D\uDE2C Бот больше не будет за вас отмечаться..";
+    }
+
+    @Override
     public String changeNotify(Long chatId) {
         GroupEntity groupEntity = groupRepository.findByTelegramId(chatId)
                 .orElse(GroupEntity.builder().telegramId(chatId).build());
