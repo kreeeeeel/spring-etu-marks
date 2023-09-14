@@ -65,8 +65,7 @@ public class NoteServiceImpl implements NoteService {
 
         WebDriver webDriver = seleniumService.getWebDriver();
         try {
-            String result = noteEtu(webDriver, user.getEmail(), user.getPassword());
-            if (result != null) stringBuilder.append(stringBuilder);
+            stringBuilder.append(noteEtu(webDriver, user.getEmail(), user.getPassword()));
         } catch (NotAuthException exception){
             stringBuilder.append(authError);
             user.setNote(false);
@@ -76,13 +75,16 @@ public class NoteServiceImpl implements NoteService {
         } catch (WebDriverException exception){
             stringBuilder.append(webDriverError);
         }
-        finally {
-            webDriver.quit();
-            if (!stringBuilder.isEmpty()) telegramBot.send(user.getTelegramId(), stringBuilder.toString());
-        }
+
+        telegramBot.send(user.getTelegramId(), stringBuilder.toString());
+        webDriver.quit();
+
     }
 
     private String noteEtu(WebDriver webDriver, String email, String password) {
+
+        log.info("Start note user " + email);
+
         String LK_URL = "https://lk.etu.ru/login";
         webDriver.get(LK_URL);
 
