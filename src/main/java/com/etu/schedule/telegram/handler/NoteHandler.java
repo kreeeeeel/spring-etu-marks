@@ -18,7 +18,7 @@ public class NoteHandler implements TelegramHandler {
 
     @Override
     public String getCommand() {
-        return "/note";
+        return "note";
     }
 
     @Override
