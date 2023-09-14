@@ -95,10 +95,12 @@ public class TelegramServiceImpl implements TelegramService {
             group = userId.equals(chatId) ? userRepository.getGroupByUser(userId) : groupRepository.getGroupByChat(chatId);
         }
 
+        String NO_PAIR = "\uD83E\uDD73" + (next ? "Следующей пары нету, расслабься" : "Сейчас нет пары, чил");
+
         String finalGroup = group;
         List<PairEntry> entries = next ? scheduleService.getLessonNext() : scheduleService.getLessonNow();
         if (entries == null){
-            return "\uD83E\uDD73 В данный момент нет пар.";
+            return NO_PAIR;
         }
 
         PairEntry pairEntry = entries.stream()
@@ -107,7 +109,7 @@ public class TelegramServiceImpl implements TelegramService {
                 .orElse(null);
 
         if (pairEntry == null || pairEntry.getTeacher() == null){
-            return "\uD83E\uDD73 В данный момент нет пар.";
+            return NO_PAIR;
         }
         return String.format("""
                 📌 %s пара:
