@@ -65,7 +65,8 @@ public class NoteServiceImpl implements NoteService {
 
         WebDriver webDriver = seleniumService.getWebDriver();
         try {
-            stringBuilder.append(noteEtu(webDriver, user.getEmail(), user.getPassword()));
+            String value = noteEtu(webDriver, user.getEmail(), user.getPassword());
+            if (value != null) stringBuilder.append(value);
         } catch (NotAuthException exception){
             stringBuilder.append(authError);
             user.setNote(false);
@@ -76,7 +77,7 @@ public class NoteServiceImpl implements NoteService {
             stringBuilder.append(webDriverError);
         }
 
-        telegramBot.send(user.getTelegramId(), stringBuilder.toString());
+        if (!stringBuilder.isEmpty()) telegramBot.send(user.getTelegramId(), stringBuilder.toString());
         webDriver.quit();
 
     }
@@ -134,8 +135,8 @@ public class NoteServiceImpl implements NoteService {
             } catch (NoSuchElementException ignored) {}
         });
 
-        return String.format("""
+        return !stringBuilder.isEmpty() ? String.format("""
                 ✅ Вы были отмечены:
-                %s""", stringBuilder);
+                %s""", stringBuilder) : null;
     }
 }
