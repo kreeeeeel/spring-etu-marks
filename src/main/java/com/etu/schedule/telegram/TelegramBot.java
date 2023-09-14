@@ -5,6 +5,7 @@ import com.etu.schedule.repository.GroupRepository;
 import com.etu.schedule.service.ScheduleService;
 import com.etu.schedule.telegram.util.ScheduleUtil;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,12 +18,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 
 import static com.etu.schedule.ScheduleApplication.DAY;
 import static com.etu.schedule.ScheduleApplication.DAY_FROM_ETU;
 
+@Slf4j
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
 
@@ -34,7 +37,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final ScheduleService scheduleService;
     private final GroupRepository groupRepository;
 
-    @SneakyThrows
+
     public TelegramBot(
             @Value("${bot.token}") String token,
             ScheduleService scheduleService,
@@ -45,13 +48,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.scheduleService = scheduleService;
         this.groupRepository = groupRepository;
 
-        this.execute(new SetMyCommands(
-                handler.stream()
-                        .filter(it -> it.getDescription() != null)
-                        .map(it -> new BotCommand("/" + it.getCommand(), it.getDescription())).toList(),
-                new BotCommandScopeDefault(),
-                null));
-
+        try {
+            this.execute(new SetMyCommands(
+                    handler.stream()
+                            .filter(it -> it.getDescription() != null)
+                            .map(it -> new BotCommand("/" + it.getCommand(), it.getDescription())).toList(),
+                    new BotCommandScopeDefault(),
+                    null));
+        } catch (TelegramApiException e) {
+            log.error("Exception for add commands: " + e.getMessage());
+        }
         handler.forEach(it -> this.handler.put(it.getCommand(), it));
     }
 
