@@ -119,8 +119,20 @@ public class TelegramServiceImpl implements TelegramService {
                 pairEntry.getShortTitle(),
                 pairEntry.getLessonType(),
                 pairEntry.getAuditorium() != null ? " ауд." + pairEntry.getAuditorium() : "",
-                pairEntry.getTeacher() != null ? System.lineSeparator() + " - " + pairEntry.getTeacher() : ""
+                System.lineSeparator() + " - " + pairEntry.getTeacher()
         );
+    }
+
+    @Override
+    public String changeNotify(Long chatId) {
+        GroupEntity groupEntity = groupRepository.findByTelegramId(chatId)
+                .orElse(GroupEntity.builder().telegramId(chatId).build());
+
+        groupEntity.setNotify(!groupEntity.isNotify());
+        groupRepository.save(groupEntity);
+        return groupEntity.isNotify() ? """
+                \uD83D\uDCD2 В беседе включена рассылка о расписании!
+                Каждый день в 06:00 в беседу будет отправлять текущее расписание.""" : "\uD83D\uDCD2 В беседе была отключена рассылка о расписании.";
     }
 
     public String getScheduleWeek(String group, Long userId, Long chatId, boolean next) {
