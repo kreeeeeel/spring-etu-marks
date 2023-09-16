@@ -141,7 +141,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         .parseMode("html")
                         .replyMarkup(keyboard)
                         .text(message)
-                .build()
+                        .build()
         );
     }
 

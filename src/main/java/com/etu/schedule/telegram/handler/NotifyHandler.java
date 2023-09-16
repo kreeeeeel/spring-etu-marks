@@ -28,7 +28,7 @@ public class NotifyHandler implements TelegramHandler {
 
     @Override
     public String getDescription() {
-        return "Отключить рассылку расписаний";
+        return "Включить/Отключить рассылку расписаний";
     }
 
     @Override

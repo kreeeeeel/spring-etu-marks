@@ -15,6 +15,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -108,13 +109,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @PostConstruct
-    @Scheduled(cron = "0 50 7 * * ?")
-    @Scheduled(cron = "0 40 9 * * ?")
-    @Scheduled(cron = "0 30 11 * * ?")
-    @Scheduled(cron = "0 30 13 * * ?")
-    @Scheduled(cron = "0 20 15 * * ?")
-    @Scheduled(cron = "0 10 17 * * ?")
-    @Scheduled(cron = "0 0 19 * * ?")
+    @Scheduled(cron = "0 0 8 ? * MON-SAT")
+    @Scheduled(cron = "0 50 9 ? * MON-SAT")
+    @Scheduled(cron = "0 40 11 ? * MON-SAT")
+    @Scheduled(cron = "0 40 13 ? * MON-SAT")
+    @Scheduled(cron = "0 30 15 ? * MON-SAT")
+    @Scheduled(cron = "0 20 17 ? * MON-SAT")
     public void changeNumberPair() {
         LocalTime currentTime = LocalTime.now();
         List<LocalTime[]> timeRanges = Arrays.asList(
@@ -145,25 +145,28 @@ public class ScheduleServiceImpl implements ScheduleService {
         EtuApi etuApi = retrofit.create(EtuApi.class);
 
         log.info("Running queries to get a schedule.");
-        IntStream.rangeClosed(1, 7).forEach(faculty -> IntStream.rangeClosed(1, 6).forEach(course -> {
-            try {
-                List<GroupResponse> response = etuApi.getSchedule(faculty, course, true, true, "оч")
-                        .execute()
-                        .body();
-
-                if (response == null) {
-                    throw new ParseScheduleException();
-                }
-
-                response.forEach(groupResponse ->
-                        groupResponse.getScheduleObjects()
-                                .forEach(lessonResponse -> inputSchedule(lessonResponse, groupResponse)));
-
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
-        }));
+        IntStream.rangeClosed(1, 7).forEach(faculty ->
+                IntStream.rangeClosed(1, 6).forEach(course ->
+                        getSchedule(etuApi.getSchedule(faculty, course, true, true, "оч"))
+                )
+        );
         log.info("Received schedules for " + groupsByGroupAndDay.size() + " groups.");
+    }
+
+    private void getSchedule(Call<List<GroupResponse>> response){
+        try {
+            List<GroupResponse> body = response.execute().body();
+            if (body == null){
+                throw new ParseScheduleException();
+            }
+
+            body.forEach(groupResponse ->
+                    groupResponse.getScheduleObjects()
+                            .forEach(lessonResponse -> inputSchedule(lessonResponse, groupResponse))
+            );
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
 

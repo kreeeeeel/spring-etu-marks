@@ -1,6 +1,7 @@
 package com.etu.schedule.telegram.handler;
 
 import com.etu.schedule.service.AuthorizationService;
+import com.etu.schedule.service.TelegramService;
 import com.etu.schedule.telegram.TelegramHandler;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
@@ -15,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 public class AuthHandler implements TelegramHandler{
 
     private final AuthorizationService authorizationService;
+    private final TelegramService telegramService;
 
     @Override
     public String getCommand() {
@@ -64,7 +66,9 @@ public class AuthHandler implements TelegramHandler{
             После авторизации, мы сохраняем только куки, для выполнения запросов
             """;
 
-        String message = update.getMessage().getText().substring(("/" + getCommand()).length()).trim();
+        String message = telegramService.getMessageReplaced(
+                update.getMessage().getText().substring(("/" + getCommand()).length())
+        ).trim();
         if (message.isEmpty()){
             return Pair.of(INVALID_MESSAGE, false);
         }
@@ -82,7 +86,9 @@ public class AuthHandler implements TelegramHandler{
 
     @Override
     public String postCommand(Update update) {
-        String[] emailWithPassword = update.getMessage().getText()
+        String[] emailWithPassword = telegramService.getMessageReplaced(
+                    update.getMessage().getText()
+                )
                 .substring(("/" + getCommand()).length())
                 .trim()
                 .split(" ");

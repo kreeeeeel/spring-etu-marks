@@ -34,12 +34,12 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     @PostConstruct
-    @Scheduled(cron = "0 0 8 * * ?")
-    @Scheduled(cron = "0 50 9 * * ?")
-    @Scheduled(cron = "0 40 11 * * ?")
-    @Scheduled(cron = "0 40 13 * * ?")
-    @Scheduled(cron = "0 30 15 * * ?")
-    @Scheduled(cron = "0 20 17 * * ?")
+    @Scheduled(cron = "0 0 8 ? * MON-SAT")
+    @Scheduled(cron = "0 50 9 ? * MON-SAT")
+    @Scheduled(cron = "0 40 11 ? * MON-SAT")
+    @Scheduled(cron = "0 40 13 ? * MON-SAT")
+    @Scheduled(cron = "0 30 15 ? * MON-SAT")
+    @Scheduled(cron = "0 20 17 ? * MON-SAT")
     public void noteUsers() {
         log.info("Start note for users.");
         List<PairEntry> pairEntries = scheduleService.getLessonNow();

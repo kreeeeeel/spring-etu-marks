@@ -3,6 +3,7 @@ package com.etu.schedule.service;
 import org.apache.commons.lang3.tuple.Pair;
 
 public interface TelegramService {
+
     String changeNote(Long userId);
     String changeNotify(Long chatId);
     String getScheduleWeek(String group, Long userId, Long chatId, boolean next);
@@ -11,5 +12,6 @@ public interface TelegramService {
     String setGroup(String group, Long userId, Long chatId);
     String getPair(String group, Long userId, Long chatId, boolean next);
     Pair<String, Boolean> isValidGroup(String group);
+    String getMessageReplaced(String message);
 
 }

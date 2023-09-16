@@ -46,7 +46,7 @@ public class WeekHandler implements TelegramHandler {
     @Override
     public Pair<String, Boolean> preCommand(Update update) {
         return telegramService.isValidGroup(
-                update.getMessage().getText().substring(("/" + WEEK_COMMAND).length()).trim(),
+                telegramService.getMessageReplaced(update.getMessage().getText().substring(("/" + WEEK_COMMAND).length())).trim(),
                 update.getMessage().getFrom().getId(),
                 update.getMessage().getChatId()
         );
@@ -55,7 +55,7 @@ public class WeekHandler implements TelegramHandler {
     @Override
     public String postCommand(Update update) {
         return telegramService.getScheduleWeek(
-                update.getMessage().getText().substring(("/" + WEEK_COMMAND).length()).trim(),
+                telegramService.getMessageReplaced(update.getMessage().getText().substring(("/" + WEEK_COMMAND).length())).trim(),
                 update.getMessage().getFrom().getId(),
                 update.getMessage().getChatId(),
                 false

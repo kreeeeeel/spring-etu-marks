@@ -45,13 +45,16 @@ public class GroupHandler implements TelegramHandler {
 
     @Override
     public Pair<String, Boolean> preCommand(Update update) {
-        return telegramService.isValidGroup(update.getMessage().getText().substring(("/" + GROUP_COMMAND).length()).trim());
+        return telegramService.isValidGroup(
+                telegramService.getMessageReplaced(
+                        update.getMessage().getText().substring(("/" + GROUP_COMMAND).length())
+                ).trim());
     }
 
     @Override
     public String postCommand(Update update) {
         return telegramService.setGroup(
-                update.getMessage().getText().substring(("/" + GROUP_COMMAND).length()).trim(),
+                telegramService.getMessageReplaced(update.getMessage().getText().substring(("/" + GROUP_COMMAND).length())).trim(),
                 update.getMessage().getFrom().getId(),
                 update.getMessage().getChatId()
         );

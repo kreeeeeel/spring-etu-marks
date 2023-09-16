@@ -5,20 +5,27 @@ import com.etu.schedule.entity.UserEntity;
 import com.etu.schedule.entry.PairEntry;
 import com.etu.schedule.repository.GroupRepository;
 import com.etu.schedule.repository.UserRepository;
+import com.etu.schedule.retrofit.response.LessonResponse;
 import com.etu.schedule.service.ScheduleService;
 import com.etu.schedule.service.TelegramService;
 import com.etu.schedule.telegram.util.ScheduleUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import static com.etu.schedule.ScheduleApplication.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TelegramServiceImpl implements TelegramService {
+
+    @Value("${bot.username}")
+    private String username;
 
     private final ScheduleService scheduleService;
     private final UserRepository userRepository;
@@ -95,7 +102,7 @@ public class TelegramServiceImpl implements TelegramService {
             group = userId.equals(chatId) ? userRepository.getGroupByUser(userId) : groupRepository.getGroupByChat(chatId);
         }
 
-        String NO_PAIR = "\uD83E\uDD73" + (next ? "Следующей пары нету, расслабься" : "Сейчас нет пары, чил");
+        String NO_PAIR = "\uD83E\uDD73 " + (next ? "Следующей пары нету, расслабься" : "Сейчас нет пары, чил");
 
         String finalGroup = group;
         List<PairEntry> entries = next ? scheduleService.getLessonNext() : scheduleService.getLessonNow();
@@ -188,15 +195,29 @@ public class TelegramServiceImpl implements TelegramService {
         calendar.setTime(new Date());
 
         int index = next ? calendar.get(Calendar.DAY_OF_WEEK) : calendar.get(Calendar.DAY_OF_WEEK) - 1;
+        if (index >= DAY_FROM_ETU.size()){
+            return "📌 " + (next ? "Завтра выходной." : "Сегодня отдыхаем");
+        }
+
         String title = "\uD83D\uDCDA Группа: " + group + System.lineSeparator() + "⌛ " + DAY.get(index) + (week == 2 ? " Чётная" : " Нечётная")
                 + System.lineSeparator() + System.lineSeparator();
         StringBuilder stringBuilder = new StringBuilder(title);
 
-        scheduleService.getLessons(group).get(DAY_FROM_ETU.get(index)).stream()
+        List<LessonResponse> lessons = scheduleService.getLessons(group).get(DAY_FROM_ETU.get(index));
+        if (lessons == null){
+            return "📌 " + (next ? "Завтра нет пар." : "Сегодня нет пар");
+        }
+
+        lessons.stream()
                 .filter(it -> it.getAuditoriumReservation().getReservationTime().getWeek().equals(week.toString()))
                 .sorted(Comparator.comparingInt(entry -> entry.getAuditoriumReservation().getReservationTime().getStartTime()))
                 .forEach(it -> stringBuilder.append(ScheduleUtil.getLessonMessage(it)).append(System.lineSeparator()));
         return stringBuilder.toString();
+    }
+
+    @Override
+    public String getMessageReplaced(String message) {
+        return message.replace("@" + username, "");
     }
 
 }
