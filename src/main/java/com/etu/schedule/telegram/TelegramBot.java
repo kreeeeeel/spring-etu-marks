@@ -2,6 +2,7 @@ package com.etu.schedule.telegram;
 
 import com.etu.schedule.entity.GroupEntity;
 import com.etu.schedule.repository.GroupRepository;
+import com.etu.schedule.retrofit.response.LessonResponse;
 import com.etu.schedule.service.ScheduleService;
 import com.etu.schedule.telegram.util.ScheduleUtil;
 import lombok.SneakyThrows;
@@ -61,7 +62,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         handler.forEach(it -> this.handler.put(it.getCommand(), it));
     }
 
-    @Scheduled(cron = "0 0 6 * * ?")
+    @Scheduled(cron = "0 0 6 ? * MON-SAT")
     public void notifySchedule() {
         Integer week = scheduleService.getWeek();
 
@@ -70,13 +71,19 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         int index = calendar.get(Calendar.DAY_OF_WEEK) - 1;
         String day = DAY_FROM_ETU.get(index);
+
         groupRepository.getGroupForNotify().forEach(group -> {
 
             String title = "\uD83D\uDCDA Группа: " + group.getGroupEtu() + System.lineSeparator() + "⌛ " + DAY.get(index) + (week == 2 ? " Чётная" : " Нечётная")
                     + System.lineSeparator() + System.lineSeparator();
 
             StringBuilder stringBuilder = new StringBuilder(title);
-            scheduleService.getLessons(group.getGroupEtu()).get(day).stream()
+            List<LessonResponse> lessons = scheduleService.getLessons(group.getGroupEtu()).get(day);
+            if (lessons == null){
+                return;
+            }
+
+            lessons.stream()
                     .filter(it -> it.getAuditoriumReservation().getReservationTime().getWeek().equals(week.toString()))
                     .sorted(Comparator.comparingInt(entry -> entry.getAuditoriumReservation().getReservationTime().getStartTime()))
                     .forEach(it -> stringBuilder.append(ScheduleUtil.getLessonMessage(it)).append(System.lineSeparator()));
