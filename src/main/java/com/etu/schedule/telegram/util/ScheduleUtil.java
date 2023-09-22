@@ -1,22 +1,21 @@
 package com.etu.schedule.telegram.util;
 
-import com.etu.schedule.retrofit.response.LessonResponse;
+import com.etu.schedule.entry.LessonEntry;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.tuple.Pair;
 
-import static com.etu.schedule.ScheduleApplication.TIME;
+import static com.etu.schedule.service.impl.TelegramServiceImpl.TIME;
 
 @UtilityClass
 public class ScheduleUtil {
 
-    public String getLessonMessage(LessonResponse lessonResponse) {
-        String teacher = lessonResponse.getTeacher() != null ? System.lineSeparator() + String.format(" - %s", lessonResponse.getTeacher().getInitials()) : "";
-        String auditorium = lessonResponse.getAuditoriumReservation().getAuditoriumNumber() != null ? "ауд." + lessonResponse.getAuditoriumReservation().getAuditoriumNumber() : "";
+    public String getLessonMessage(LessonEntry lessonEntry) {
+        String teacher = lessonEntry.getTeacher() != null ? System.lineSeparator() + String.format(" - %s", lessonEntry.getTeacher()) : "";
+        String auditorium = lessonEntry.getAuditorium() != null ? "ауд." + lessonEntry.getAuditorium() : "";
 
         return String.format("%s - %s (%s) %s%s",
-                TIME.get(lessonResponse.getAuditoriumReservation().getReservationTime().getStartTime() % 100),
-                lessonResponse.getSubject().getShortTitle(),
-                lessonResponse.getSubject().getSubjectType(),
+                TIME.get(lessonEntry.getPair()),
+                lessonEntry.getShortName(),
+                lessonEntry.getType(),
                 auditorium,
                 teacher
         );

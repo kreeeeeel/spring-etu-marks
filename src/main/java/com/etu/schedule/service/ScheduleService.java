@@ -1,19 +1,15 @@
 package com.etu.schedule.service;
 
-import com.etu.schedule.entry.GroupEntry;
-import com.etu.schedule.entry.PairEntry;
-import com.etu.schedule.retrofit.response.LessonResponse;
-
-import java.util.List;
-import java.util.Map;
+import com.etu.schedule.entry.LessonDayEntry;
+import com.etu.schedule.entry.LessonEntry;
+import com.etu.schedule.entry.ScheduleEntry;
 
 public interface ScheduleService {
-    Integer getPair();
-    Integer getWeek();
-    Integer getCountGroup();
-    List<GroupEntry> getLesson();
-    boolean isGroup(String group);
-    List<PairEntry> getLessonNow();
-    List<PairEntry> getLessonNext();
-    Map<String, List<LessonResponse>> getLessons(String group);
+    int getCurrentPair();
+    int getCurrentDay();
+    int getCurrentWeek();
+    boolean isExistGroup(String group);
+    ScheduleEntry getLessonWeek(String group, boolean next);
+    LessonDayEntry getLessonDay(String group, boolean next);
+    LessonEntry getLessonCurrent(String group, boolean next);
 }

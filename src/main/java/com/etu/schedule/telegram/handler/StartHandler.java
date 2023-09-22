@@ -1,6 +1,5 @@
 package com.etu.schedule.telegram.handler;
 
-import com.etu.schedule.service.ScheduleService;
 import com.etu.schedule.telegram.TelegramHandler;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
@@ -17,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StartHandler implements TelegramHandler {
 
-    private final ScheduleService scheduleService;
+    private final List<String> CALLBACK = List.of("how is working");
 
     @Override
     public String getCommand() {
@@ -29,8 +28,8 @@ public class StartHandler implements TelegramHandler {
         return null;
     }
 
-    public String getCallback() {
-        return "how is working";
+    public List<String> getListCallback() {
+        return CALLBACK;
     }
 
     @Override
@@ -40,23 +39,19 @@ public class StartHandler implements TelegramHandler {
 
     @Override
     public String postCommand(Update update) {
-        return String.format("""
+        return """
                 <b>👽 Бо-би-бо-бааа</b>
                 👋 Добро пожаловать!
                                 
                 Я готов предоставить возможности:
-                👨‍🏫 Информация о преподавателях
                 👀 Расписание
-                ✍️ Заметки
                 🧠 Отмечаться за вас
-                                
-                Доступно расписание для <b>%d</b> групп.
                                
-                """, scheduleService.getCountGroup());
+                """;
     }
 
     @Override
-    public InlineKeyboardMarkup getInlineKeyboard() {
+    public InlineKeyboardMarkup getInlineKeyboard(Long userId) {
         return InlineKeyboardMarkup.builder()
                 .keyboardRow(List.of(
                         InlineKeyboardButton.builder().text("Как работает?").callbackData("how is working").build())

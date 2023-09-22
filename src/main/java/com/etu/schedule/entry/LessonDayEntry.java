@@ -7,8 +7,8 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ScheduleEntry {
-    private String group;
+public class LessonDayEntry {
+    private Integer day;
     private Integer week;
-    private List<DayEntry> entry;
+    private List<LessonEntry> lesson;
 }

@@ -11,8 +11,19 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByTelegramId(Long telegramId);
 
-    @Query("select u from UserEntity u where u.groupEtu in :groups and u.email != null and u.password != null and u.isNote = true")
-    List<UserEntity> findUserForNote(@Param("groups") List<String> groups);
+    @Query("""
+        select u from UserEntity u
+        where u.groupEtu in (select s.groupEtu from ScheduleEntity s where s.week = :week and s.pair = :pair and s.day = :day)
+        and u.email is not null
+        and u.password is not null
+        and u.isNote = true
+    """)
+    List<UserEntity> findUserForNote(
+            @Param("week") Integer week,
+            @Param("day") Integer day,
+            @Param("pair") Integer pair
+    );
+
 
     @Query("select u.groupSchedule from UserEntity u where u.telegramId = :telegram")
     String getGroupByUser(@Param("telegram") Long telegram);

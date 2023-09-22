@@ -10,6 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class NextWeekHandler  implements TelegramHandler {
@@ -29,12 +31,12 @@ public class NextWeekHandler  implements TelegramHandler {
     }
 
     @Override
-    public InlineKeyboardMarkup getInlineKeyboard() {
+    public InlineKeyboardMarkup getInlineKeyboard(Long userId) {
         return null;
     }
 
     @Override
-    public String getCallback() {
+    public List<String> getListCallback() {
         return null;
     }
 

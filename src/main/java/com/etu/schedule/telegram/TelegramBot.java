@@ -2,14 +2,10 @@ package com.etu.schedule.telegram;
 
 import com.etu.schedule.entity.GroupEntity;
 import com.etu.schedule.repository.GroupRepository;
-import com.etu.schedule.retrofit.response.LessonResponse;
-import com.etu.schedule.service.ScheduleService;
-import com.etu.schedule.telegram.util.ScheduleUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -23,9 +19,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 
-import static com.etu.schedule.ScheduleApplication.DAY;
-import static com.etu.schedule.ScheduleApplication.DAY_FROM_ETU;
-
 @Slf4j
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
@@ -35,18 +28,18 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final Map<String, TelegramHandler> handler = new HashMap<>();
 
-    private final ScheduleService scheduleService;
+    //private final ScheduleService scheduleService;
     private final GroupRepository groupRepository;
 
 
     public TelegramBot(
             @Value("${bot.token}") String token,
-            ScheduleService scheduleService,
+            //ScheduleService scheduleService,
             List<TelegramHandler> handler,
             GroupRepository groupRepository) {
         super(token);
 
-        this.scheduleService = scheduleService;
+        //this.scheduleService = scheduleService;
         this.groupRepository = groupRepository;
 
         try {
@@ -62,7 +55,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         handler.forEach(it -> this.handler.put(it.getCommand(), it));
     }
 
-    @Scheduled(cron = "0 0 6 ? * MON-SAT")
+    /*@Scheduled(cron = "0 0 6 ? * MON-SAT")
     public void notifySchedule() {
         Integer week = scheduleService.getWeek();
 
@@ -90,16 +83,17 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             send(group.getTelegramId(), stringBuilder.toString());
         });
-    }
+    }*/
 
     @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
 
-        if (update.hasCallbackQuery()){
+        if (update.hasCallbackQuery()) {
 
             TelegramHandler handler = this.handler.values().stream()
-                    .filter(it -> it.getCallback() != null && it.getCallback().equals(update.getCallbackQuery().getData()))
+                    .filter(it -> it.getListCallback() != null && it.getListCallback().stream()
+                            .anyMatch(th -> th.startsWith(update.getCallbackQuery().getData())))
                     .findFirst()
                     .orElse(null);
 
@@ -129,7 +123,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
             Pair<String, Boolean> preCommand = handler.preCommand(update);
             if (preCommand != null && preCommand.getLeft() != null) reply(messageId, null, chatId, preCommand.getLeft());
-            if (preCommand == null || preCommand.getRight()) reply(messageId, handler.getInlineKeyboard(), chatId, handler.postCommand(update));
+            if (preCommand == null || preCommand.getRight()) reply(messageId, handler.getInlineKeyboard(userId), chatId, handler.postCommand(update));
         }
 
     }

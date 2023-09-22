@@ -6,6 +6,21 @@ create table groups
     telegram_id bigint
 );
 
+create table schedule
+(
+    id bigserial primary key,
+    auditorium varchar(255),
+    day integer,
+    group_etu varchar(255),
+    name varchar(255),
+    pair integer,
+    short_name varchar(255),
+    teacher_name varchar(255),
+    teacher_short_name varchar(255),
+    type varchar(255),
+    week integer
+);
+
 create table users
 (
     id bigserial primary key,

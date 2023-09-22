@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class AuthHandler implements TelegramHandler{
@@ -24,7 +26,7 @@ public class AuthHandler implements TelegramHandler{
     }
 
     @Override
-    public String getCallback() {
+    public List<String> getListCallback() {
         return null;
     }
 
@@ -39,7 +41,7 @@ public class AuthHandler implements TelegramHandler{
     }
 
     @Override
-    public InlineKeyboardMarkup getInlineKeyboard() {
+    public InlineKeyboardMarkup getInlineKeyboard(Long userId) {
         return null;
     }
 

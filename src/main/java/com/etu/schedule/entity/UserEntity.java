@@ -1,7 +1,6 @@
 package com.etu.schedule.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.*;
 
 @Getter
@@ -23,7 +22,6 @@ public class UserEntity {
     @Column
     private String name;
 
-    @Email
     @Column
     private String email;
 

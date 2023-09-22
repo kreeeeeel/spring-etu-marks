@@ -5,18 +5,23 @@ import com.etu.schedule.exception.ParseScheduleException;
 import com.etu.schedule.repository.UserRepository;
 import com.etu.schedule.service.AuthorizationService;
 import com.etu.schedule.service.SeleniumService;
+import com.etu.schedule.util.EncryptUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthorizationServiceImpl implements AuthorizationService {
+
+    @Value("${secret.key}")
+    private String secret;
 
     private final SeleniumService seleniumService;
     private final UserRepository userRepository;
@@ -25,7 +30,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @SneakyThrows
     public String authEtu(Long userId, String email, String password) {
 
-        log.info("Start autorization for " + email);
+        log.info("Start autorization for user " + userId);
 
         String URL = "https://lk.etu.ru/login";
         String NOT_AUTH_MESSAGE = """
@@ -90,11 +95,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             UserEntity userEntity = userRepository.findByTelegramId(userId)
                     .orElse(UserEntity.builder().telegramId(userId).build());
 
-            userEntity.setEmail(email);
+            userEntity.setEmail(EncryptUtil.encrypt(email, secret));
             userEntity.setName(name);
             userEntity.setGroupEtu(group);
             userEntity.setGroupSchedule(group);
-            userEntity.setPassword(password);
+            userEntity.setPassword(EncryptUtil.encrypt(password, secret));
             userEntity.setNote(true);
 
             userRepository.save(userEntity);
